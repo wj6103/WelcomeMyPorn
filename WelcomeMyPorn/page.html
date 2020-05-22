@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome My Porn</title>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600;900&display=swap" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="logo"><a href="WelcomMyPorn.html"></a></div>
+    <div id="app" class="ShowFilmList">
+        <div class="box">
+            <div class="container-1">
+                <span class="icon"><i class="fa fa-search"></i></span>
+                <input type="search" id="search" v-model="keyword" placeholder="Search..."
+                    @keypress.enter="searchFilm" />
+            </div>
+        </div>
+        <div id="watchDiv" class="watchDiv">
+            <div class="morewatch">
+                <div class="movie">
+                    <iframe :src="filmData.video_url" frameborder="0" style="opacity: 1;"
+                        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen></iframe>
+                    <div class="textbox">
+                        <div class="tittle">
+                            <h2>{{filmData.title}}</h2>
+                            <!-- <star-rating :star-size="20" :increment="0.5" :show-rating="false" :border-width="0" @rating-selected="setRating"></star-rating> -->
+                            <div class="icon">
+                                <Image-rating src="gun.png" :rating="rating" :item-size="30" :increment="0.5"
+                                    :show-rating="false" :border-width="0" @rating-selected="setRating"></Image-rating>
+                            </div>
+                        </div>
+                        <pre><p>觀看次數：{{(filmData.watch||'').toString().replace(/\B(?=(\d{3})+$)/g, ',')}}次．{{filmData.published_time}}&nbsp;&nbsp;&nbsp;<img class="like" src="like.svg"> {{filmData.like}}</p></pre>
+                        <p>演出：{{actors}}</p>
+                        <p>分類：{{categories}}</p>
+                        <p>標籤：{{tags}}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="pagetag">
+                <h1>你可能會喜歡</h1>
+                <ul>
+                    <li v-for="item in simList">
+                        <a :href="'page.html?id='+item.id">
+                            <div class="tagbox">
+                                <!-- <iframe :src="item.video_url" frameborder="0"
+                                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen></iframe> -->
+                                <img :src="item.image" style="max-width: 150px;">
+                            </div>
+                            <div class="text">
+                                <h2>{{item.title}}</h2>
+                                <p>觀看次數：{{item.watch.toString().replace(/\B(?=(\d{3})+$)/g, ',')}}次 </p>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/vue-router"></script>
+    <script src="https://unpkg.com/vue-rate-it/dist/cdn/vue-rate-it.min.js"></script>
+    <script>
+        // Vue.component('star-rating', VueRateIt.StarRating);
+        Vue.component('image-rating', VueRateIt.ImageRating);
+        var router = new VueRouter({
+            mode: 'history',
+            routes: []
+        });
+        var app = new Vue({
+            router,
+            el: '#app',
+            data: {
+                simList: [],
+                filmData: [],
+                actors: "",
+                tags: "",
+                categories: "",
+                keyword: "",
+                rating: 0
+            },
+            mounted() {
+                id = this.$route.query.id
+                axios.all([GetSim(), GetFilm()])
+                    .then(axios.spread((sim, film) => {
+                        var film1 = film.data.content[0];
+                        this.filmData = film1;
+                        for (var i = 0; i < film1.tags.length; i++)
+                            this.tags += film1.tags[i] + " , ";
+                        this.tags = this.tags.substring(0, this.tags.length - 2);
+                        for (var i = 0; i < film1.actors.length; i++)
+                            this.actors += film1.actors[i] + " , ";
+                        this.actors = this.actors.substring(0, this.actors.length - 2);
+                        for (var i = 0; i < film1.categories.length; i++)
+                            this.categories += film1.categories[i] + " , ";
+                        this.categories = this.categories.substring(0, this.categories.length - 2);
+                        console.log(this.filmData)
+                        this.simList = sim.data.content;
+
+                        axios.get('https://porn-staging.soso1212.com/getRating/1/' + this.filmData.id)
+                        .then((result) => {
+                            console.log(result.data.content[0].rating);
+                            if (result.data.content)
+                                this.rating = result.data.content[0].rating
+                        }).catch((err) => { console.error(err) });
+                    }))
+                    .catch((err) => { console.error(err) })
+                function GetSim() { return axios.get('https://porn-staging.soso1212.com/recommend/' + id) }
+                function GetFilm() { return axios.get('https://porn-staging.soso1212.com/get/' + id) }
+                
+            },
+            methods: {
+                searchFilm() {
+                    location.href = "list.html?keyword=" + this.keyword
+                },
+                setRating: function (rating) {
+                    userRating = {"id": "1_"+ this.filmData.id, "movieId": this.filmData.id, "userId": 1, "rating": rating, "timestamp": Date.now() };
+                    console.log(userRating);
+                    axios.post('https://porn-staging.soso1212.com/rating', userRating);
+                },
+            }
+        })
+    </script>
+</body>
+
+</html>

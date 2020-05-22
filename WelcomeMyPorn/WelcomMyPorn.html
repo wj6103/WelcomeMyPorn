@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome My Porn</title>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600;900&display=swap" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div id="app" class="ShowFilmList">
+        <div class="box">
+            <div class="container-1">
+                <span class="icon"><i class="fa fa-search"></i></span>
+                <input type="search" id="search" v-model="keyword" placeholder="Search..."
+                    @keypress.enter="searchFilm" />
+            </div>
+        </div>
+        <div id="watchDiv" class="watchDiv">
+            <div class="morewatch">
+                <h1>最多人觀看</h1>
+                <ul>
+                    <li v-for="item in watchlist">
+                        <a :href="'page.html?id='+item.id">
+                            <div>
+                                <!-- <iframe :src="item.video_url" frameborder="0"
+                                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen></iframe> -->
+                                <img :src="item.image" style="max-width: 250px;">
+                            </div>
+                            <div class="text">
+                                <h2>{{item.title}}</h2>
+                                <p>觀看次數：{{item.watch.toString().replace(/\B(?=(\d{3})+$)/g, ',')}}次</p>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+                <h1>最多人喜歡</h1>
+                <ul>
+                    <li v-for="item in likelist">
+                        <a :href="'page.html?id='+item.id">
+                            <div :style="{backgroundImage: `url('${item.image}')`}">
+                                <!-- <iframe :src="item.video_url" frameborder="0"
+                                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen></iframe> -->
+                                <img :src="item.image" style="max-width: 250px;">
+                            </div>
+
+                            <div class="text">
+                                <h2>{{item.title}}</h2>
+                                <p>喜歡人數：{{item.like.toString().replace(/\B(?=(\d{3})+$)/g, ',')}}人</p>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="tag">
+                <ul>
+                    <li v-for="item in categoriesList">
+                        <a :href="'list.html?category='+item">
+                            <p>{{item}}</p>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        var watch = new Vue({
+            el: "#app",
+            data: {
+                watchlist: [],
+                likelist: [],
+                categoriesList: ["60FPS", "Amateur", "Anal", "Arab", "Asian", "Babe", "Babysitter",
+                    "BBW", "Behind The Scenes", "Big Ass", "Big Dick", "Big Tits", "Bisexual Male", "Blonde", "Blowjob",
+                    "Bondage", "Brazilian", "British", "Brunette", "Bukkake", "Cartoon", "Casting", "Celebrity",
+                    "Closed CaptionsClosed Captions", "College", "Compilation",
+                    "Cosplay", "Creampie", "Cuckold", "Cumshot", "Czech", "Described Video", "Double Penetration",
+                    "Ebony", "Euro", "Exclusive", "Feet", "Female Orgasm", "Fetish", "Fingering",
+                    "Fisting", "French", "Funny", "Gangbang", "Gay", "German", "Handjob", "Hardcore",
+                    "HD PornHD Porn", "Hentai", "Indian", "InteractiveInteractive", "Interracial",
+                    "Italian", "Japanese", "Korean", "Latina", "Lesbian", "Massage",
+                    "Masturbation", "Mature", "MILF", "Muscular Men", "Music", "Old/Young", "Orgy", "Parody",
+                    "Party", "Pissing", "Pornstar", "POV", "Public", "Pussy Licking", "Reality", "Red Head",
+                    "Role Play", "Romantic", "Rough Sex", "Russian", "School", "SFW", "Small Tits", "Smoking",
+                    "Solo Female", "Solo Male", "Squirt", "Step Fantasy", "Strap On", "Striptease", "Tattooed Women",
+                    "Teen", "Threesome", "Toys", "Transgender", "Verified Couples", "Vintage", "Webcam"],
+                keyword: ""
+            },
+            mounted() {
+                axios.all([GetWatch(), GetLike()])
+                    .then(axios.spread((watch, like) => {
+                        var watch20 = [8];
+
+                        for (var i = 0; i < 8; i++) {
+                            if (i < 4)
+                                watch20[i] = watch.data.content[Math.floor(Math.random() * 50)];
+                            else
+                                watch20[i] = watch.data.content[Math.floor(Math.random() * 50) + 50];
+
+                        }
+                        this.watchlist = watch20;
+                        var like20 = [8];
+                        for (var i = 0; i < 8; i++) {
+                            if (i < 4)
+                                like20[i] = like.data.content[Math.floor(Math.random() * 50)];
+                            else
+                                like20[i] = like.data.content[Math.floor(Math.random() * 50) + 50];
+                        }
+                        this.likelist = like20;
+                    }))
+                    .catch((err) => { console.error(err) })
+                function GetWatch() { return axios.get('https://porn-staging.soso1212.com/watch') }
+                function GetLike() { return axios.get('https://porn-staging.soso1212.com/like') }
+            },
+            methods: {
+                searchFilm() {
+                    location.href = "list.html?keyword=" + this.keyword
+                }
+
+            }
+        })
+    </script>
+</body>
+
+</html>

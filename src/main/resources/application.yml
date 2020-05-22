@@ -1,0 +1,9 @@
+server:
+  port: 9527
+spring:
+  application:
+    name: RecommendationSystem
+  data:
+    elasticsearch:
+      cluster-nodes: 10.205.48.10:9300
+      cluster-name: datalake-elastic

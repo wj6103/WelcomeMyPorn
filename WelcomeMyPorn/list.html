@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome My Porn</title>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600;900&display=swap" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="logo"><a href="WelcomMyPorn.html"></a></div>
+    <div id="app" class="ShowFilmList">
+        <div class="box">
+            <div class="container-1">
+                <span class="icon"><i class="fa fa-search"></i></span>
+                <input type="search" id="search" v-model="keyword" placeholder="Search..."
+                    @keypress.enter="searchFilm" />
+            </div>
+        </div>
+        <div id="watchDiv" class="watchDiv">
+            <div class="listtag">
+                <h1 v-if="category">影片清單-{{category}}</h1>
+                <h1 v-else="keyword">影片清單-{{keyword}}</h1>
+                <ul>
+                    <li v-for="item in filmList">
+                        <a :href="'page.html?id='+item.id">
+                            <div class="tagbox">
+                                <!-- <iframe :src="item.video_url" frameborder="0"
+                                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen></iframe> -->
+                                <img :src="item.image" style="max-width: 150px;">
+                            </div>
+                            <div class="text">
+                                <h2>{{item.title}}</h2>
+                                <p>觀看次數：{{item.watch.toString().replace(/\B(?=(\d{3})+$)/g, ',')}}次．{{item.published_time}}
+                                </p>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/vue-router"></script>
+    <script>
+        var router = new VueRouter({
+            mode: 'history',
+            routes: []
+        });
+        var app = new Vue({
+            router,
+            el: '#app',
+            data: {
+                filmList: [],
+                category: "",
+                keyword: ""
+            },
+            mounted() {
+                this.category = this.$route.query.category;
+                this.keyword = this.$route.query.keyword;
+                console.log(this.keyword)
+                if (this.category)
+                    axios.get('https://porn-staging.soso1212.com/categories/' + this.category)
+                        .then((result) => {
+                            this.filmList = result.data.content;
+                            console.log("2" , this.filmList)
+                        }).catch((error) => { console.error(error) })
+                else
+                    axios.get('https://porn-staging.soso1212.com/search/' + this.keyword)
+                        .then((result) => {
+                            this.filmList = result.data.content;
+                            console.log("1" , this.filmList)
+                        }).catch((error) => { console.error(error) })
+                
+            },
+            methods: {
+                searchFilm() {
+                    location.href = "list.html?keyword=" + this.keyword
+                }
+
+            }
+        })
+    </script>
+</body>
+
+</html>
